@@ -23,6 +23,14 @@ import csv
 def runModel (request, pk):
     return render()
 
+
+
+def csv_gen (cols,data,writer)->int:
+    writer.writerow(cols)
+    [ writer.writerow(  (getattr(row,c) for c in cols)   ) for row in data]
+
+    return 1
+
 def csvAll (request):
 
     
@@ -30,19 +38,12 @@ def csvAll (request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="fqdnreport.csv"'
     writer = csv.writer(response)
-
-
    
     data = FQDNInstance.objects.all()
     
     cols = [f.name for f in FQDNInstance._meta.fields]
-    writer.writerow(cols)    
-    for row in data:
-        rowobj = []
-        for c in cols:
-            rowobj.append(getattr(row,c))
-
-        writer.writerow(rowobj)
+    csv_gen(cols,data,writer)
+       
 
     return response
 
@@ -50,7 +51,6 @@ def csvAll (request):
 def csvMalicious (request):
 
     
-
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="fqdnreport.csv"'
     writer = csv.writer(response)
@@ -58,14 +58,7 @@ def csvMalicious (request):
     data = FQDNInstance.objects.filter(score__gte=0.75)
     
     cols = [f.name for f in FQDNInstance._meta.fields]
-    writer.writerow(cols)    
-    for row in data:
-        rowobj = []
-        for c in cols:
-            rowobj.append(getattr(row,c))
-
-        writer.writerow(rowobj)
-
+    csv_gen(cols,data,writer)
     return response
 
 
